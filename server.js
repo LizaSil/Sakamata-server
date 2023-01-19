@@ -15,7 +15,7 @@ var videoid
 const app = express()
 app.use(
   cors({
-    AccessControlAllowOrigin: "*",
+    AccessControlAllowOrigin: CLIENT,
     methods: ["GET"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
     optionsSuccessStatus: 200,

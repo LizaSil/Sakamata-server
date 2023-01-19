@@ -3,7 +3,6 @@ const cors = require("cors")
 const axios = require("axios")
 
 require("dotenv").config("./.env")
-var livestatus
 var updated
 var videoid
 const CLIENT = "https://lizasil.github.io/Sakamata"
@@ -28,15 +27,13 @@ setInterval(() => {
 
 app.get("/livestream-status", async (req, res) => {
   try {
-    const data = await fetchData()
     res.send({
       livestreamStatus,
       videoId,
       updated,
     })
   } catch (error) {
-    console.error(error)
-    res.status(500).send({ error: "Failed to fetch data" })
+    console.log(error.response.data.error.message)
   }
 })
 
@@ -55,7 +52,7 @@ async function fetchData() {
     videoId = results.data.items[0].id.videoId
     updated = await fetchEndTime()
   } catch (error) {
-    throw new Error(error)
+    console.log(error.response.data.error.message)
   }
 }
 
@@ -66,6 +63,6 @@ async function fetchEndTime() {
     )
     return endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
   } catch (error) {
-    throw new Error(error)
+    console.log(error.response.data.error.message)
   }
 }

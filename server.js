@@ -33,7 +33,8 @@ app.get("/livestream-status", async (req, res) => {
       updated,
     })
   } catch (error) {
-    console.log(error.response.data.error.message)
+    console.error(error)
+    res.status(500).send({ error: "Failed to fetch data" })
   }
 })
 
@@ -51,9 +52,7 @@ async function fetchData() {
     livestreamStatus = results.data.items[0].snippet.liveBroadcastContent
     videoId = results.data.items[0].id.videoId
     updated = await fetchEndTime()
-  } catch (error) {
-    console.log(error.response.data.error.message)
-  }
+  } catch (error) {}
 }
 
 async function fetchEndTime() {

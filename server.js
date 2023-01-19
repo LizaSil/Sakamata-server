@@ -7,7 +7,7 @@ const CLIENT = "https://lizasil.github.io/Sakamata/"
 const CID = process.env.CHANNEL_ID
 const KEY = process.env.API_KEY
 const PORT = process.env.PORT || 3000
-const URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&order=date&key=${KEY}&orign=${CLIENT}`
+//const URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&order=date&key=${KEY}&orign=${CLIENT}`
 var livestatus
 var updated
 var videoid
@@ -15,12 +15,10 @@ var videoid
 const app = express()
 app.use(
   cors({
-    AccessControlAllowOrigin: CLIENT,
+    "Access-Control-Allow-Origin": "https://lizasil.github.io/Sakamata/",
     methods: ["GET"],
-    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin"],
+    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin: *"],
     optionsSuccessStatus: 200,
-    credentials: true,
-    origin: CLIENT,
   })
 )
 
@@ -30,10 +28,6 @@ setInterval(() => {
 }, 864 * 1000)
 
 app.get("/livestream-status", (req, res) => {
-  req.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  )
   res.send({
     status: livestatus,
     updated: updated,

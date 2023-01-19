@@ -3,14 +3,13 @@ const cors = require("cors")
 const axios = require("axios")
 
 require("dotenv").config("./.env")
+var livestatus
+var updated
+var videoid
 const CLIENT = "https://lizasil.github.io/Sakamata"
 const CID = process.env.CHANNEL_ID
 const KEY = process.env.API_KEY
 const PORT = process.env.PORT || 3000
-const URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&order=date&key=${KEY}&orign=${CLIENT}`
-var livestatus
-var updated
-var videoid
 
 const app = express()
 app.use(
@@ -24,34 +23,49 @@ app.use(
 
 // Fetch the data with axios
 setInterval(() => {
-  getData()
-}, 864 * 1000)
+  fetchData()
+}, 865 * 1000)
 
-app.get("/livestream-status", (req, res) => {
-  res.send({
-    status: livestatus,
-    updated: updated,
-    videoId: videoid,
-  })
+app.get("/livestream-status", async (req, res) => {
+  try {
+    const data = await fetchData()
+    res.send({
+      livestreamStatus,
+      videoId,
+      updated,
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ error: "Failed to fetch data" })
+  }
 })
 
 app.listen(PORT, () => {
-  getData()
-  console.log(URL)
+  fetchData()
   console.log(`Server running on port ${PORT}`)
 })
 
-function getData() {
+async function fetchData() {
   console.log("Fetching data...")
-  axios.default
-    .get(URL)
-    .then((results) => {
-      //console.log(results.data.items)
-      livestatus = results.data.items[0].snippet.liveBroadcastContent
-      updated = results.data.items[0].snippet.publishedAt
-      videoid = results.data.items[0].id.videoId
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+  try {
+    const results = await axios.default.get(
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&order=date&key=${KEY}&orign=${CLIENT}`
+    )
+    livestreamStatus = results.data.items[0].snippet.liveBroadcastContent
+    videoId = results.data.items[0].id.videoId
+    updated = await fetchEndTime()
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+async function fetchEndTime() {
+  try {
+    const endTimeResults = await axios.get(
+      `https://youtube.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${KEY}`
+    )
+    return endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
+  } catch (error) {
+    throw new Error(error)
+  }
 }

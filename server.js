@@ -4,6 +4,7 @@ const axios = require("axios")
 
 require("dotenv").config("./.env")
 var updated
+var endTime
 var videoid
 const CLIENT = "https://lizasil.github.io/Sakamata"
 const CID = process.env.CHANNEL_ID
@@ -27,6 +28,9 @@ setInterval(() => {
 
 app.get("/livestream-status", async (req, res) => {
   try {
+    if (livestreamStatus === "live") {
+      updated = "Stream is Live"
+    }
     res.send({
       livestreamStatus,
       videoId,
@@ -51,8 +55,14 @@ async function fetchData() {
     )
     livestreamStatus = results.data.items[0].snippet.liveBroadcastContent
     videoId = results.data.items[0].id.videoId
-    updated = await fetchEndTime()
-  } catch (error) {}
+    if (livestreamStatus !== "live") {
+      updated = await fetchEndTime()
+    } else {
+      updated = null
+    }
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 async function fetchEndTime() {
@@ -60,8 +70,9 @@ async function fetchEndTime() {
     const endTimeResults = await axios.get(
       `https://youtube.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${KEY}`
     )
-    return endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
+    endTime = endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
+    return endTime
   } catch (error) {
-    console.log(error.response.data.error.message)
+    return "Live"
   }
 }

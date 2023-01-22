@@ -1,50 +1,17 @@
 const express = require("express")
 const cors = require("cors")
 const axios = require("axios")
+const app = express()
 
-var updated
-var endTime
-var videoid
-const CLIENT = "https://lizasil.github.io/Sakamata"
 const CID = process.env.CHANNEL_ID
 const KEY = process.env.API_KEY
 const PORT = process.env.PORT || 3000
+const CLIENT = "https://lizasil.github.io/Sakamata"
 
-const app = express()
-app.use(
-  cors({
-    "Access-Control-Allow-Origin": "*",
-    methods: ["GET"],
-    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin: *"],
-    optionsSuccessStatus: 200,
-  })
-)
-
-setInterval(() => {
-  fetchData()
-  // ~ 15 minutes interval
-}, 14.8 * 60 * 1000)
-
-app.get("/livestream-status", async (req, res) => {
-  try {
-    if (livestreamStatus === "live") {
-      updated = "Stream is Live"
-    }
-    res.send({
-      livestreamStatus,
-      videoId,
-      updated,
-    })
-  } catch (error) {
-    console.error(error)
-    res.status(500).send({ error: "Failed to fetch data" })
-  }
-})
-
-app.listen(PORT, () => {
-  fetchData()
-  console.log(`Server running on port ${PORT}`)
-})
+let updated
+let endTime
+let videoId
+let livestreamStatus
 
 async function fetchData() {
   console.log("Fetching data...")
@@ -75,3 +42,38 @@ async function fetchEndTime() {
     return "Live"
   }
 }
+
+app.use(
+  cors({
+    "Access-Control-Allow-Origin": "*",
+    methods: ["GET"],
+    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin: *"],
+    optionsSuccessStatus: 200,
+  })
+)
+
+app.get("/livestream-status", async (req, res) => {
+  try {
+    if (livestreamStatus === "live") {
+      updated = "Stream is Live"
+    }
+    res.send({
+      livestreamStatus,
+      videoId,
+      updated,
+    })
+  } catch (error) {
+    console.error(error)
+    res.status(500).send({ error: "Failed to fetch data" })
+  }
+})
+
+app.listen(PORT, () => {
+  fetchData()
+  console.log(`Server running on port ${PORT}`)
+})
+
+setInterval(() => {
+  fetchData()
+  // ~ 15 minutes interval
+}, 14.8 * 60 * 1000)

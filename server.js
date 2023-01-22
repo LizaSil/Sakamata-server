@@ -2,7 +2,6 @@ const express = require("express")
 const cors = require("cors")
 const axios = require("axios")
 
-require("dotenv").config("./.env")
 var updated
 var endTime
 var videoid
@@ -14,17 +13,17 @@ const PORT = process.env.PORT || 3000
 const app = express()
 app.use(
   cors({
-    "Access-Control-Allow-Origin": CLIENT,
+    "Access-Control-Allow-Origin": "*",
     methods: ["GET"],
     allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin: *"],
     optionsSuccessStatus: 200,
   })
 )
 
-// Fetch the data with axios
 setInterval(() => {
   fetchData()
-}, 865 * 1000)
+  // ~ 15 minutes interval
+}, 14.8 * 60 * 1000)
 
 app.get("/livestream-status", async (req, res) => {
   try {

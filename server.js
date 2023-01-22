@@ -50,7 +50,7 @@ async function fetchData() {
   console.log("Fetching data...")
   try {
     const results = await axios.default.get(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&order=date&key=${KEY}&orign=${CLIENT}`
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&maxResults=1&order=date&type=video&key=${KEY}&orign=${CLIENT}`
     )
     livestreamStatus = results.data.items[0].snippet.liveBroadcastContent
     videoId = results.data.items[0].id.videoId

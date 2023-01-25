@@ -14,13 +14,24 @@ let videoId
 let livestreamStatus
 
 async function fetchData() {
-  console.log("Fetching data...")
+  console.log(
+    "Fetched" + new Date().toLocaleDateString("en-US", { timeZone: "Europe/Berlin" })
+  )
   try {
     const results = await axios.default.get(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&maxResults=1&order=date&type=video&key=${KEY}&orign=${CLIENT}`
     )
-    livestreamStatus = results.data.items[0].snippet.liveBroadcastContent
-    videoId = results.data.items[0].id.videoId
+
+    const items = results.data.items
+    const liveItem = items.find((item) => item.snippet.liveBroadcastContent === "live")
+    if (liveItem) {
+      livestreamStatus = liveItem.snippet.liveBroadcastContent
+      videoId = liveItem.id.videoId
+    } else {
+      livestreamStatus = items[0].snippet.liveBroadcastContent
+      videoId = items[0].id.videoId
+    }
+
     if (livestreamStatus !== "live") {
       updated = await fetchEndTime()
     } else {

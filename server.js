@@ -1,6 +1,8 @@
 const express = require("express")
 const cors = require("cors")
 const axios = require("axios")
+
+require("dotenv").config()
 const app = express()
 
 const CID = process.env.CHANNEL_ID
@@ -19,7 +21,7 @@ async function fetchData() {
   )
   try {
     const results = await axios.default.get(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&maxResults=1&order=date&type=video&key=${KEY}&orign=${CLIENT}`
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&order=date&type=video&key=${KEY}&orign=${CLIENT}`
     )
 
     const items = results.data.items

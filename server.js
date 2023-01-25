@@ -2,7 +2,6 @@ const express = require("express")
 const cors = require("cors")
 const axios = require("axios")
 
-require("dotenv").config()
 const app = express()
 
 const CID = process.env.CHANNEL_ID
@@ -17,7 +16,12 @@ let livestreamStatus
 
 async function fetchData() {
   console.log(
-    "Fetched" + new Date().toLocaleDateString("en-US", { timeZone: "Europe/Berlin" })
+    "Fetched" +
+      new Date().getHours() +
+      ":" +
+      new Date().getMinutes() +
+      ":" +
+      new Date().getSeconds()
   )
   try {
     const results = await axios.default.get(

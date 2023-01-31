@@ -36,9 +36,9 @@ async function fetchData() {
       updated = "Stream is Live"
       console.log(liveItem)
     } else {
-      updated = await fetchEndTime()
-      livestreamStatus = items[0].snippet.liveBroadcastContent
       videoId = items[0].id.videoId
+      livestreamStatus = items[0].snippet.liveBroadcastContent
+      updated = await fetchEndTime()
     }
   } catch (error) {
     console.error(error)
@@ -53,6 +53,7 @@ async function fetchEndTime() {
     endTime = endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
     return endTime
   } catch (error) {
+    console.error(error.message)
     return "live"
   }
 }

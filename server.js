@@ -33,16 +33,12 @@ async function fetchData() {
     if (liveItem) {
       livestreamStatus = liveItem.snippet.liveBroadcastContent
       videoId = liveItem.id.videoId
+      updated = "Stream is Live"
       console.log(liveItem)
     } else {
+      updated = await fetchEndTime()
       livestreamStatus = items[0].snippet.liveBroadcastContent
       videoId = items[0].id.videoId
-    }
-
-    if (livestreamStatus !== "live") {
-      updated = await fetchEndTime()
-    } else {
-      updated = null
     }
   } catch (error) {
     console.error(error)
@@ -76,9 +72,6 @@ app.get("/", (req, res) => {
 
 app.get("/livestream-status", async (req, res) => {
   try {
-    if (livestreamStatus === "live") {
-      updated = "Stream is Live"
-    }
     res.send({
       livestreamStatus,
       videoId,

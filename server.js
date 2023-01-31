@@ -1,7 +1,7 @@
 const express = require("express")
 const cors = require("cors")
 const axios = require("axios")
-
+require("dotenv").config()
 const app = express()
 
 const CID = process.env.CHANNEL_ID
@@ -25,7 +25,7 @@ async function fetchData() {
   )
   try {
     const results = await axios.default.get(
-      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&order=date&type=video&key=${KEY}&orign=${CLIENT}`
+      `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CID}&channelType=any&order=date&type=video&videoCaption=any&videoDefinition=any&videoDimension=any&videoDuration=any&videoEmbeddable=any&videoLicense=any&videoSyndicated=any&videoType=any&key=${KEY}&origin=${CLIENT}`
     )
 
     const items = results.data.items
@@ -33,6 +33,7 @@ async function fetchData() {
     if (liveItem) {
       livestreamStatus = liveItem.snippet.liveBroadcastContent
       videoId = liveItem.id.videoId
+      console.log(liveItem)
     } else {
       livestreamStatus = items[0].snippet.liveBroadcastContent
       videoId = items[0].id.videoId
@@ -56,7 +57,7 @@ async function fetchEndTime() {
     endTime = endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
     return endTime
   } catch (error) {
-    return "Live"
+    return "live"
   }
 }
 
@@ -68,6 +69,10 @@ app.use(
     optionsSuccessStatus: 200,
   })
 )
+
+app.get("/", (req, res) => {
+  res.redirect("/livestream-status")
+})
 
 app.get("/livestream-status", async (req, res) => {
   try {

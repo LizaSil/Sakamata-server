@@ -9,10 +9,7 @@ const KEY = process.env.API_KEY
 const PORT = process.env.PORT || 3000
 const CLIENT = "https://lizasil.github.io/Sakamata"
 
-let updated
-let endTime
-let videoId
-let livestreamStatus
+let data
 
 async function fetchData() {
   console.log(
@@ -31,30 +28,30 @@ async function fetchData() {
     const items = results.data.items
     const liveItem = items.find((item) => item.snippet.liveBroadcastContent === "live")
     if (liveItem) {
-      livestreamStatus = liveItem.snippet.liveBroadcastContent
-      videoId = liveItem.id.videoId
-      updated = "Stream is Live"
+      const livestreamStatus = liveItem.snippet.liveBroadcastContent
+      const videoId = liveItem.id.videoId
+      data = { livestreamStatus, videoId, updated: "Stream is Live" }
       console.log(liveItem)
     } else {
       items.sort((a, b) => {
         return new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt)
       })
-      videoId = items[0].id.videoId
-      livestreamStatus = items[0].snippet.liveBroadcastContent
-      updated = await fetchEndTime()
+      const videoId = items[0].id.videoId
+      const livestreamStatus = items[0].snippet.liveBroadcastContent
+      const endTime = await fetchEndTime(videoId)
+      data = { livestreamStatus, videoId, updated: endTime }
     }
   } catch (error) {
     console.error(error)
   }
 }
 
-async function fetchEndTime() {
+async function fetchEndTime(videoId) {
   try {
     const endTimeResults = await axios.get(
       `https://youtube.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&id=${videoId}&key=${KEY}`
     )
-    endTime = endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
-    return endTime
+    return endTimeResults.data.items[0].liveStreamingDetails.actualEndTime
   } catch (error) {
     console.error(error.message)
     return "live"
@@ -63,9 +60,9 @@ async function fetchEndTime() {
 
 app.use(
   cors({
-    "Access-Control-Allow-Origin": "*",
+    origin: "*",
     methods: ["GET"],
-    allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin: *"],
+    allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 200,
   })
 )
@@ -76,23 +73,19 @@ app.get("/", (req, res) => {
 
 app.get("/livestream-status", async (req, res) => {
   try {
-    res.send({
-      livestreamStatus,
-      videoId,
-      updated,
-    })
+    if (data) {
+      res.send(data)
+    } else {
+      await fetchData()
+      res.send(data)
+    }
   } catch (error) {
     console.error(error)
     res.status(500).send({ error: "Failed to fetch data" })
   }
 })
-
 app.listen(PORT, () => {
-  fetchData()
   console.log(`Server running on port ${PORT}`)
 })
 
-setInterval(() => {
-  fetchData()
-  // ~ 15 minutes interval
-}, 14.8 * 60 * 1000)
+setInterval(fetchData, 14.8 * 60 * 1000)

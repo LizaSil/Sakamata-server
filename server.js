@@ -16,7 +16,7 @@ let livestreamStatus
 
 async function fetchData() {
   console.log(
-    "Fetched" +
+    "Fetched " +
       new Date().getHours() +
       ":" +
       new Date().getMinutes() +
@@ -36,6 +36,9 @@ async function fetchData() {
       updated = "Stream is Live"
       console.log(liveItem)
     } else {
+      items.sort((a, b) => {
+        return new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt)
+      })
       videoId = items[0].id.videoId
       livestreamStatus = items[0].snippet.liveBroadcastContent
       updated = await fetchEndTime()
